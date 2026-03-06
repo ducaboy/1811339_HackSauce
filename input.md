@@ -8,7 +8,7 @@ The habitat operator will be able to see the latest values of all sensors in rea
 1) As the habitat operator, I want to see the latest value of each sensor in real time so I can monitor habitat conditions.
 2) As the habitat operator, I want to see the current state of all actuators so I know what is active.
 3) As the habitat operator, I want the system to modify the state of actuators if the state conditions go out of normal ranges.
-4) 
+4) As the habitat operator, I want to see a timestamp of the last actuator state update so I know how fresh the data is
 5) As the habitat operator, I want to toggle and untoggle actuators so that i can regulate habitat conditions also manually.
 6) As the habitat operator, I want to implement automatation rules so that the system can react automatically to sensor changes.
 7) As the habitat operator, I want to update rules in real time so that i can regulate the habit conditions to my liking.
