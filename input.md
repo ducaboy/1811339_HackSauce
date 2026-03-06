@@ -15,3 +15,27 @@ The habitat operator will be able to see the latest values of all sensors in rea
 8) As the habitat operator, I want to toggle and untoggle rules in real time so that i can regulate the habitat conditions to my liking.
 9) As the habitat operator, I want the rules to be persistent so that they can survive system failures and restarts.
 10) As the habitat operator, I want to see a visual alert when a sensor exceeds a threshold.
+
+# STANDARD INTERNAL EVENT FORMAT 
+
+{
+  "type": "object",
+  "required": ["sensor_id", "captured_at", "measurements", "status"],
+  "properties": {
+    "sensor_id": { "type": "string" },
+    "captured_at": { "type": "string", "format": "date-time" },
+    "measurements": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["metric", "value", "unit"],
+        "properties": {
+          "metric": { "type": "string" },
+          "value": { "type": "number" },
+          "unit": { "type": "string" }
+        }
+      }
+    },
+    "status": { "type": "string", "enum": ["ok", "warning"] }
+  }
+}
