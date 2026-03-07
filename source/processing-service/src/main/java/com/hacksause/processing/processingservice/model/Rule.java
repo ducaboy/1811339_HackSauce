@@ -16,6 +16,7 @@ public class Rule {
     private double threshold;
     private String actuatorName;
     private String actuatorState;
+    private boolean enabled = true;
 
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
@@ -37,5 +38,8 @@ public class Rule {
 
     public String getActuatorState() { return actuatorState; }
     public void setActuatorState(String actuatorState) { this.actuatorState = actuatorState; }
+
+    public boolean isEnabled() { return enabled; }
+    public void setEnabled(boolean enabled) { this.enabled = enabled; }
 
 }

@@ -21,9 +21,10 @@ public class RuleEngine {
 
     public void evaluate(SensorEvent sensorEvent){
 
-        List<Rule> rules = ruleRepository.findBySensorId(sensorEvent.getSensorId());
-
-        double value = sensorEvent.getMeasurements().get(0).getValue();
+        List<Rule> rules = ruleRepository.findBySensorId(sensorEvent.getSensorId())
+                .stream()
+                .filter(Rule::isEnabled)
+                .toList();
 
         for (Rule rule : rules) {
             sensorEvent.getMeasurements().stream()
