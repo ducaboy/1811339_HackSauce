@@ -26,18 +26,13 @@ public class SensorConsumer {
 
     @JmsListener(destination = "${sensor.queue}")
     public void onMessage(String message){
+        System.out.println(message);
         try {
             SensorEvent sensorEvent = objectMapper.readValue(message, SensorEvent.class);
             sensorCache.update(sensorEvent);
 
             System.out.println("Message received from queue:");
             System.out.println(message);
-            System.out.println(sensorEvent.getSensorId());
-            System.out.println(sensorEvent.getCapturedAt());
-            System.out.println(sensorEvent.getStatus());
-            System.out.println(sensorEvent.getMeasurements().getFirst().getMetric());
-            System.out.println(sensorEvent.getMeasurements().getFirst().getUnit());
-            System.out.println(sensorEvent.getMeasurements().getFirst().getValue());
             System.out.println("Cached sensor" + sensorEvent.getSensorId());
 
             ruleEngine.evaluate(sensorEvent);
