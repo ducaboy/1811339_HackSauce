@@ -5,12 +5,12 @@ import time
 from message_converter import sensor_msg_converter
 from producer_to_broker import *
 
-
 BROKER_HOST = "127.0.0.1"
-BROKER_PORT = 62613      #DA CAMBIARE DURANTE TESTING
+BROKER_PORT = 61616      #DA CAMBIARE DURANTE TESTING, provare 61616
 #USERNAME = "admin"
 #PASSWORD = "admin"
 DESTINATION = "/sensor/events"      #DA CAMBIARE DURANTE TESTING
+SEND_TIMER = 5.0
 
 connection = connect(BROKER_HOST, BROKER_PORT, True)
 
@@ -79,4 +79,4 @@ while True:
         logger.exception("Producer error: %s", e)
         disconnect(connection)
 
-    time.sleep(5.0)
+    time.sleep(SEND_TIMER)
