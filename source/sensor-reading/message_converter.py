@@ -31,7 +31,3 @@ def sensor_msg_converter(msg: dict, type: str):
     else:
         print("Message type not valid")
         return ""
-
-
-#Per esempi con ActiveMQ, vedi "https://ameyanekar.medium.com/create-an-activemq-client-using-python-c532b6f91074" e
-# "https://dev.to/manishanaidu/connect-to-activemq-using-python-stomp-mdj"

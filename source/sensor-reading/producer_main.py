@@ -10,7 +10,7 @@ BROKER_PORT = 61613      #DA CAMBIARE DURANTE TESTING, provare 61616
 #USERNAME = "admin"
 #PASSWORD = "admin"
 DESTINATION = "sensor.events"      #DA CAMBIARE DURANTE TESTING
-SEND_TIMER = 1.0
+SEND_TIMER = 5.0
 
 connection = connect(BROKER_HOST, BROKER_PORT, True)
 

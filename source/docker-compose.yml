@@ -47,6 +47,22 @@ services:
       timeout: 5s
       retries: 10
 
+  sensor-reading:
+    build: ./sensor-reading
+    container_name: sensor-reading-backend
+    volumes:
+      - .:/app
+    environment:
+      - STOMP_HOST=activemq
+      - STOMP_PORT=61613
+    depends_on:
+      - activemq
+
+  frontend:
+    build: ./frontend-page
+    container_name: frontend
+    ports: "80:80"
+  
 volumes:
   postgres_data:
 
