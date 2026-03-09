@@ -6,11 +6,11 @@ from message_converter import sensor_msg_converter
 from producer_to_broker import *
 
 BROKER_HOST = "127.0.0.1"
-BROKER_PORT = 61616      #DA CAMBIARE DURANTE TESTING, provare 61616
+BROKER_PORT = 61613      #DA CAMBIARE DURANTE TESTING, provare 61616
 #USERNAME = "admin"
 #PASSWORD = "admin"
-DESTINATION = "/sensor.events"      #DA CAMBIARE DURANTE TESTING
-SEND_TIMER = 5.0
+DESTINATION = "sensor.events"      #DA CAMBIARE DURANTE TESTING
+SEND_TIMER = 1.0
 
 connection = connect(BROKER_HOST, BROKER_PORT, True)
 

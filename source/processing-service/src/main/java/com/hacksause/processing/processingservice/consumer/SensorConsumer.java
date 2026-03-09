@@ -5,9 +5,12 @@ import com.hacksause.processing.processingservice.cache.SensorCache;
 import com.hacksause.processing.processingservice.engine.RuleEngine;
 import com.hacksause.processing.processingservice.model.SensorEvent;
 import com.hacksause.processing.processingservice.sse.SseEmitterService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.jms.annotation.JmsListener;
 import org.springframework.stereotype.Component;
 import tools.jackson.databind.ObjectMapper;
+import java.nio.charset.StandardCharsets;
 
 @Component
 public class SensorConsumer {
@@ -25,24 +28,30 @@ public class SensorConsumer {
     }
 
     @JmsListener(destination = "${sensor.queue}")
-    public void onMessage(String message){
-        System.out.println(message);
+    public void onMessage(jakarta.jms.Message message) {
         try {
-            SensorEvent sensorEvent = objectMapper.readValue(message, SensorEvent.class);
+            String json;
+
+            if (message instanceof jakarta.jms.BytesMessage bytesMessage) {
+                byte[] bytes = new byte[(int) bytesMessage.getBodyLength()];
+                bytesMessage.readBytes(bytes);
+                json = new String(bytes, StandardCharsets.UTF_8);
+            } else if (message instanceof jakarta.jms.TextMessage textMessage) {
+                json = textMessage.getText();
+            } else {
+                System.out.println("Unknown message type");
+                return;
+            }
+
+            // System.out.println("Received message: " + json);
+
+            SensorEvent sensorEvent = objectMapper.readValue(json, SensorEvent.class);
             sensorCache.update(sensorEvent);
-
-            System.out.println("Message received from queue:");
-            System.out.println(message);
-            System.out.println("Cached sensor" + sensorEvent.getSensorId());
-
             ruleEngine.evaluate(sensorEvent);
             sseEmitterService.sendToAll(sensorEvent);
 
-
-
-        } catch (Exception e){
-            System.err.println("Failed to parse message: " + e.getMessage());
+        } catch (Exception e) {
+            System.out.println("Failed to parse message:" + e.getMessage());
         }
-
     }
 }
