@@ -39,3 +39,7 @@ The habitat operator will be able to see the latest values of all sensors in rea
     "status": { "type": "string", "enum": ["ok", "warning"] }
   }
 }
+
+# RULE MODEL
+
+IF <sensor_id> <metric> <operator> <threshold> THEN set <actuator_name> to <ON|OFF>
