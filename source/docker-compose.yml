@@ -50,19 +50,27 @@ services:
   sensor-reading:
     build: ./sensor-reading
     container_name: sensor-reading-backend
-    volumes:
-      - .:/app
+    restart: on-failure
     environment:
       - STOMP_HOST=activemq
       - STOMP_PORT=61613
+      - SIMULATOR_URL=http://simulator:8080
     depends_on:
       - activemq
+      - simulator
+
 
   frontend:
     build: ./frontend-page
     container_name: frontend
-    ports: "80:80"
-  
+    ports:
+      - "80:80"
+
+  simulator:
+    image: mars-iot-simulator:multiarch_v1
+    container_name: simulator
+    ports:
+      - "8080:8080"
 volumes:
   postgres_data:
 
