@@ -1,0 +1,52 @@
+services:
+
+  activemq:
+    image: rmohr/activemq:latest
+    container_name: activemq
+    ports:
+      - "61616:61616"
+      - "61613:61613"
+      - "8161:8161"
+
+  processing-service:
+    build: ./processing-service
+    container_name: processing-service
+    restart: on-failure
+    ports:
+      - "8081:8081"
+    depends_on:
+      database:
+        condition: service_healthy
+      activemq:
+        condition: service_started
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://database:5432/hacksauce
+      SPRING_DATASOURCE_USERNAME: postgres
+      SPRING_DATASOURCE_PASSWORD: postgres
+
+      SPRING_ACTIVEMQ_BROKER_URL: tcp://activemq:61616
+      SPRING_ACTIVEMQ_USER: admin
+      SPRING_ACTIVEMQ_PASSWORD: admin
+
+      SIMULATOR_BASE_URL: http://host.docker.internal:8080
+
+  database:
+    image: postgres:15
+    container_name: hacksause-db
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: hacksauce
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U postgres -d hacksauce" ]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+volumes:
+  postgres_data:
+
