@@ -129,9 +129,40 @@ The service is realized with an ApiController class containing all endpoint mapp
     | PUT | /api/rules/{id}/toggle | Toggles the enabled flag of a rule | 8 |
     | GET | /api/events | SSE stream — pushes a notification to the frontend on every new sensor event | 1,10 |
 
+## CONTAINER_NAME: database
+
+### DESCRIPTION:
+Provides persistent relational storage for automation rules used by the processing-service.
+
+### USER STORIES:
+6) As a Habitat Operator, I want to create automation rules, so that the system reacts automatically to sensor changes
+
+7) As a Habitat Operator, I want to update and manage rules in real time, so that I can regulate habitat conditions to my liking
+
+8) As a Habitat Operator, I want to toggle rules ON/OFF without deleting them, so that I can temporarily disable automations
+
+9) As a Habitat Operator, I want rules to persist across system restarts, so that automations survive system failures
+
+### PORTS:
+5432:5432
+
+### DESCRIPTION:
+The database container runs PostgreSQL and serves as the only persistence layer of the platform. It stores the automation rules table, which is read and written exclusively by the processing-service via Spring Data JPA. The schema is managed automatically by Hibernate on startup using ddl-auto=update. On first startup with an empty database, the DataInitializer component seeds 4 default rules to ensure the system is immediately operational.
+
+### PERSISTENCE EVALUATION:
+The database container requires persistent storage. A named Docker volume (postgres_data) is mounted at /var/lib/postgresql/data to ensure rules survive container restarts and system failures.
+
+### EXTERNAL SERVICES CONNECTIONS:
+The database container does not connect to external services. It only accepts inbound connections from the processing-service on port 5432.
+
+### MICROSERVICES:
+
 #### MICROSERVICE: postgres
--TYPE: database
--DESCRIPTION: Manages persistent storage of automation rules.
--PORTS: 5432
--DB STRUCTURE:
+- TYPE: database
+- DESCRIPTION: Stores automation rules used by the rule engine. Seeded with 4 default rules on first startup.
+- PORTS: 5432
+- TECHNOLOGICAL SPECIFICATION:
+PostgreSQL 15. Schema managed by Hibernate (ddl-auto=update). Accessed by the processing-service via Spring Data JPA using the HikariCP connection pool.
+
+- DB STRUCTURE:
 Rule : | id | sensor_id | metric | operator | threshold | actuator_name | actuator_state | enabled |
