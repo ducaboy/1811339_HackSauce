@@ -1,0 +1,474 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HackSauce — Mars Habitat Monitor</title>
+    <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Exo+2:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #9ec1cc;
+            --surface: #e8f7ff;
+            --surface2: #748ec9;
+            --border: #82a8da;
+            --accent: #5ccde3;
+            --accent2: #ff6b35;
+            --green: #00ff88;
+            --red: #ff3366;
+            --yellow: #ffd700;
+            --text: #171b59;
+            --text-dim: #1e2d3f;
+            --font-mono: 'Share Tech Mono', monospace;
+            --font-main: 'Exo 2', sans-serif;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            background: var(--bg);
+            color: var(--text);
+            font-family: var(--font-main);
+            min-height: 100vh;
+            background-image:
+                radial-gradient(ellipse at 20% 50%, rgba(0, 212, 255, 0.03) 0%, transparent 50%),
+                radial-gradient(ellipse at 80% 20%, rgba(255, 107, 53, 0.03) 0%, transparent 50%);
+        }
+
+        header {
+            padding: 20px 40px;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: rgba(35, 48, 77, 0.915);
+            backdrop-filter: blur(10px);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .logo { font-family: var(--font-mono); font-size: 1.4rem; color: var(--accent); letter-spacing: 2px; }
+        .logo span { color: var(--accent2); }
+
+        .status-bar { display: flex; align-items: center; gap: 8px; font-family: var(--font-mono); font-size: 0.75rem; color: var(--accent); }
+
+        .status-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--green); animation: pulse 2s infinite; }
+
+        @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.3; } }
+
+        main { padding: 30px 40px; max-width: 1400px; margin: 0 auto; }
+
+        .section-title {
+            font-family: var(--font-mono); font-size: 0.7rem; letter-spacing: 4px;
+            text-transform: uppercase; color: var(--text); margin-bottom: 12px;
+            display: flex; align-items: center; gap: 12px;
+        }
+        .section-title::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+
+        .table-wrapper { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; overflow: hidden; margin-bottom: 32px; }
+
+        table { width: 100%; border-collapse: collapse; }
+
+        thead tr { background: var(--surface2); border-bottom: 1px solid var(--border); }
+
+        th { padding: 12px 16px; text-align: left; font-family: var(--font-mono); font-size: 0.7rem; letter-spacing: 2px; text-transform: uppercase; color: var(--text-dim); font-weight: 400; }
+
+        tbody tr { border-bottom: 1px solid rgba(30, 58, 95, 0.4); transition: background 0.2s; }
+        tbody tr:last-child { border-bottom: none; }
+        tbody tr:hover { background: rgba(0, 212, 255, 0.03); }
+
+        td { padding: 11px 16px; font-size: 0.88rem; }
+
+        .sensor-name { font-family: var(--font-mono); color: var(--accent); font-size: 0.8rem; }
+        .metric-name { font-family: var(--font-mono); font-size: 0.78rem; color: var(--text-dim); }
+        .value { font-family: var(--font-mono); font-size: 0.95rem; color: var(--text); font-weight: 600; }
+        .unit { font-family: var(--font-mono); font-size: 0.78rem; color: var(--text-dim); }
+        .timestamp { font-family: var(--font-mono); font-size: 0.72rem; color: var(--text-dim); }
+
+        .badge { display: inline-flex; align-items: center; gap: 5px; padding: 3px 8px; border-radius: 4px; font-family: var(--font-mono); font-size: 0.7rem; letter-spacing: 1px; }
+        .badge-ok { background: rgba(0, 255, 136, 0.1); color: var(--green); border: 1px solid rgba(0, 255, 136, 0.2); }
+        .badge-warning { background: rgba(255, 215, 0, 0.1); color: var(--yellow); border: 1px solid rgba(255, 215, 0, 0.2); animation: warningPulse 2s infinite; }
+
+        @keyframes warningPulse { 0%, 100% { box-shadow: none; } 50% { box-shadow: 0 0 8px rgba(255, 215, 0, 0.3); } }
+
+        .actuator-name { font-weight: 600; font-size: 0.9rem; }
+        .state-on { font-family: var(--font-mono); color: var(--green); font-size: 0.85rem; }
+        .state-off { font-family: var(--font-mono); color: var(--text-dim); font-size: 0.85rem; }
+
+        .toggle-switch { position: relative; width: 44px; height: 24px; cursor: pointer; }
+        .toggle-track { position: absolute; inset: 0; background: var(--surface2); border: 1px solid var(--border); border-radius: 12px; transition: all 0.3s; }
+        .toggle-thumb { position: absolute; top: 3px; left: 3px; width: 16px; height: 16px; background: var(--text-dim); border-radius: 50%; transition: all 0.3s; }
+        .toggle-switch.on .toggle-track { background: rgba(0, 255, 136, 0.15); border-color: var(--green); }
+        .toggle-switch.on .toggle-thumb { left: 23px; background: var(--green); box-shadow: 0 0 8px rgba(0, 255, 136, 0.5); }
+
+        .btn-rules { padding: 5px 14px; background: transparent; border: 1px solid var(--border); color: var(--text-dim); border-radius: 4px; font-family: var(--font-mono); font-size: 0.72rem; letter-spacing: 1px; cursor: pointer; transition: all 0.2s; }
+        .btn-rules:hover { border-color: var(--accent); color: var(--accent); background: rgba(0, 212, 255, 0.05); }
+
+        .subrow td:first-child { padding-left: 32px; }
+
+        .loading-row td { text-align: center; padding: 24px; color: var(--text-dim); font-family: var(--font-mono); font-size: 0.8rem; letter-spacing: 2px; }
+
+        #rules-page { display: none; }
+
+        .rules-header { text-align: center; margin-bottom: 32px; }
+        .rules-header h1 { font-size: 2.5rem; font-weight: 700; color: var(--text); letter-spacing: 2px; margin-bottom: 4px; }
+        .rules-header p { font-family: var(--font-mono); color: var(--text-dim); font-size: 0.8rem; letter-spacing: 3px; text-transform: uppercase; }
+
+        .btn-back { display: inline-flex; align-items: center; gap: 8px; padding: 8px 16px; background: transparent; border: 1px solid var(--border); color: var(--text-dim); border-radius: 4px; font-family: var(--font-mono); font-size: 0.75rem; letter-spacing: 1px; cursor: pointer; transition: all 0.2s; margin-bottom: 24px; }
+        .btn-back:hover { border-color: var(--accent); color: var(--accent); }
+
+        .add-rule-form { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 20px; margin-bottom: 24px; }
+        .form-title { font-family: var(--font-mono); font-size: 0.7rem; letter-spacing: 3px; text-transform: uppercase; color: var(--accent); margin-bottom: 16px; }
+        .form-row { display: flex; gap: 12px; align-items: flex-end; flex-wrap: wrap; }
+        .form-group { display: flex; flex-direction: column; gap: 6px; }
+        .form-group label { font-family: var(--font-mono); font-size: 0.65rem; letter-spacing: 2px; text-transform: uppercase; color: var(--text-dim); }
+
+        .form-group select,
+        .form-group input {
+            background: var(--surface2); border: 1px solid var(--border); color: var(--text);
+            padding: 8px 12px; border-radius: 4px; font-family: var(--font-mono);
+            font-size: 0.82rem; outline: none; transition: border-color 0.2s; min-width: 120px;
+        }
+        .form-group select:focus, .form-group input:focus { border-color: var(--accent); }
+        .form-group select option { background: var(--surface2); }
+
+        .btn-add { padding: 8px 20px; background: rgba(0, 212, 255, 0.1); border: 1px solid var(--accent); color: var(--accent); border-radius: 4px; font-family: var(--font-mono); font-size: 0.75rem; letter-spacing: 2px; cursor: pointer; transition: all 0.2s; text-transform: uppercase; }
+        .btn-add:hover { background: rgba(0, 212, 255, 0.2); box-shadow: 0 0 12px rgba(0, 212, 255, 0.2); }
+
+        .rule-checkbox { width: 18px; height: 18px; cursor: pointer; accent-color: var(--accent); }
+
+        .btn-delete { padding: 4px 10px; background: transparent; border: 1px solid rgba(255, 51, 102, 0.3); color: var(--red); border-radius: 4px; font-family: var(--font-mono); font-size: 0.7rem; cursor: pointer; transition: all 0.2s; }
+        .btn-delete:hover { background: rgba(255, 51, 102, 0.1); border-color: var(--red); }
+
+        .rule-disabled td { opacity: 0.4; }
+        .rule-disabled td:last-child, .rule-disabled td:first-child { opacity: 1; }
+    </style>
+</head>
+<body>
+
+<header>
+    <div class="logo">HACK<span>SAUCE</span> // MARS OPS</div>
+    <div class="status-bar">
+        <div class="status-dot"></div>
+        <span id="connection-status">CONNECTING...</span>
+    </div>
+</header>
+
+<!-- PAGE 1: DASHBOARD -->
+<div id="dashboard-page">
+    <main>
+        <div class="section-title">Sensor Telemetry</div>
+        <div class="table-wrapper">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Sensor</th><th>Metric</th><th>Value</th><th>Unit</th><th>Status</th><th>Timestamp</th>
+                    </tr>
+                </thead>
+                <tbody id="sensor-tbody">
+                    <tr class="loading-row"><td colspan="6">AWAITING TELEMETRY...</td></tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="section-title">Actuator Control</div>
+        <div class="table-wrapper">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Actuator</th><th>State</th><th>Last Update</th><th>Toggle</th><th>Rules</th>
+                    </tr>
+                </thead>
+                <tbody id="actuator-tbody">
+                    <tr class="loading-row"><td colspan="5">LOADING ACTUATORS...</td></tr>
+                </tbody>
+            </table>
+        </div>
+    </main>
+</div>
+
+<!-- PAGE 2: RULES -->
+<div id="rules-page">
+    <main>
+        <button class="btn-back" onclick="showDashboard()">← BACK</button>
+        <div class="rules-header">
+            <h1 id="rules-actuator-title">Cooling Fan</h1>
+            <p>Automation Rules</p>
+        </div>
+
+        <div class="add-rule-form">
+            <div class="form-title">// Add New Rule</div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Sensor</label>
+                    <select id="rule-sensor" onchange="updateMetrics()">
+                        <option value="greenhouse_temperature">greenhouse_temperature</option>
+                        <option value="entrance_humidity">entrance_humidity</option>
+                        <option value="co2_hall">co2_hall</option>
+                        <option value="hydroponic_ph">hydroponic_ph</option>
+                        <option value="water_tank_level">water_tank_level</option>
+                        <option value="corridor_pressure">corridor_pressure</option>
+                        <option value="air_quality_pm25">air_quality_pm25</option>
+                        <option value="air_quality_voc">air_quality_voc</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Metric</label>
+                    <select id="rule-metric"></select>
+                </div>
+                <div class="form-group">
+                    <label>Operator</label>
+                    <select id="rule-operator">
+                        <option value=">">></option>
+                        <option value=">=">>=</option>
+                        <option value="<"><</option>
+                        <option value="<="><=</option>
+                        <option value="=">=</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Value</label>
+                    <input type="number" id="rule-threshold" placeholder="28.0" style="width:90px" />
+                </div>
+                <div class="form-group">
+                    <label>Set State</label>
+                    <select id="rule-state">
+                        <option value="ON">ON</option>
+                        <option value="OFF">OFF</option>
+                    </select>
+                </div>
+                <button class="btn-add" onclick="addRule()">+ ADD RULE</button>
+            </div>
+        </div>
+
+        <div class="table-wrapper">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Sensor</th><th>Metric</th><th>Operator</th><th>Value</th><th>Set State</th><th>Enabled</th><th>Delete</th>
+                    </tr>
+                </thead>
+                <tbody id="rules-tbody">
+                    <tr class="loading-row"><td colspan="7">NO RULES DEFINED</td></tr>
+                </tbody>
+            </table>
+        </div>
+    </main>
+</div>
+
+<script>
+    const API = 'http://localhost:8081/api';
+    let currentActuator = null;
+
+    // ─── SENSOR METRICS MAP ─────────────────────────────────────────
+    const SENSOR_METRICS = {
+        greenhouse_temperature: ["temperature_c"],
+        entrance_humidity:      ["humidity_pct"],
+        co2_hall:               ["co2_ppm"],
+        hydroponic_ph:          ["ph"],
+        water_tank_level:       ["level_pct", "level_liters"],
+        corridor_pressure:      ["pressure_kpa"],
+        air_quality_pm25:       ["pm1_ug_m3", "pm25_ug_m3", "pm10_ug_m3"],
+        air_quality_voc:        ["voc_ppb", "co2e_ppm"]
+    };
+
+    function updateMetrics() {
+        const sensor = document.getElementById('rule-sensor').value;
+        const metricSelect = document.getElementById('rule-metric');
+        const metrics = SENSOR_METRICS[sensor] || [];
+        metricSelect.innerHTML = metrics
+            .map(m => `<option value="${m}">${m}</option>`)
+            .join('');
+    }
+
+    // ─── LABELS ─────────────────────────────────────────────────────
+    const SENSOR_LABELS = {
+        greenhouse_temperature: 'Greenhouse Temperature',
+        entrance_humidity:      'Entrance Humidity',
+        co2_hall:               'CO2 Hall',
+        hydroponic_ph:          'Hydroponic pH',
+        water_tank_level:       'Water Tank Level',
+        corridor_pressure:      'Corridor Pressure',
+        air_quality_pm25:       'Air Quality PM',
+        air_quality_voc:        'Air Quality VOC'
+    };
+
+    const ACTUATOR_LABELS = {
+        cooling_fan:         'Cooling Fan',
+        entrance_humidifier: 'Entrance Humidifier',
+        hall_ventilation:    'Hall Ventilation',
+        habitat_heater:      'Habitat Heater'
+    };
+
+    // ─── RENDER SENSORS ─────────────────────────────────────────────
+    function renderSensors(data) {
+        const tbody = document.getElementById('sensor-tbody');
+        if (Object.keys(data).length === 0) {
+            tbody.innerHTML = '<tr class="loading-row"><td colspan="6">AWAITING TELEMETRY...</td></tr>';
+            return;
+        }
+        let html = '';
+        for (const [sensorId, event] of Object.entries(data)) {
+            const label = SENSOR_LABELS[sensorId] || sensorId;
+            const measurements = event.measurements || [];
+            const ts = event.captured_at ? event.captured_at.replace('T', ' ').substring(0, 19) : '—';
+            measurements.forEach((m, i) => {
+                const badge = event.status === 'warning'
+                    ? `<span class="badge badge-warning">⚠ WARNING</span>`
+                    : `<span class="badge badge-ok">● OK</span>`;
+                html += `<tr ${i > 0 ? 'class="subrow"' : ''}>
+                    <td class="sensor-name">${i === 0 ? label : ''}</td>
+                    <td class="metric-name">${m.metric}</td>
+                    <td class="value">${m.value}</td>
+                    <td class="unit">${m.unit}</td>
+                    <td>${badge}</td>
+                    <td class="timestamp">${ts}</td>
+                </tr>`;
+            });
+        }
+        tbody.innerHTML = html;
+    }
+
+    // ─── RENDER ACTUATORS ───────────────────────────────────────────
+    function renderActuators(data) {
+        const tbody = document.getElementById('actuator-tbody');
+        let html = '';
+        for (const act of data) {
+            const label = ACTUATOR_LABELS[act.name] || act.name;
+            const isOn = act.state === 'ON';
+            const ts = act.lastUpdate ? act.lastUpdate.replace('T', ' ').substring(0, 19) : '—';
+            html += `<tr>
+                <td class="actuator-name">${label}</td>
+                <td class="${isOn ? 'state-on' : 'state-off'}">${act.state}</td>
+                <td class="timestamp">${ts}</td>
+                <td>
+                    <div class="toggle-switch ${isOn ? 'on' : ''}" onclick="toggleActuator('${act.name}', '${isOn ? 'OFF' : 'ON'}')">
+                        <div class="toggle-track"></div>
+                        <div class="toggle-thumb"></div>
+                    </div>
+                </td>
+                <td><button class="btn-rules" onclick="showRules('${act.name}', '${label}')">EDIT RULES</button></td>
+            </tr>`;
+        }
+        tbody.innerHTML = html || '<tr class="loading-row"><td colspan="5">NO ACTUATORS FOUND</td></tr>';
+    }
+
+    // ─── ACTUATOR TOGGLE ────────────────────────────────────────────
+    async function toggleActuator(name, newState) {
+        try {
+            await fetch(`${API}/actuators/${name}/toggle`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ state: newState })
+            });
+            loadActuators();
+        } catch (e) { console.error('Toggle failed:', e); }
+    }
+
+    // ─── LOAD DATA ──────────────────────────────────────────────────
+    async function loadSensors() {
+        try {
+            const res = await fetch(`${API}/sensors`);
+            renderSensors(await res.json());
+        } catch (e) { console.error('Failed to load sensors:', e); }
+    }
+
+    async function loadActuators() {
+        try {
+            const res = await fetch(`${API}/actuators`);
+            renderActuators(await res.json());
+        } catch (e) { console.error('Failed to load actuators:', e); }
+    }
+
+    // ─── SSE ────────────────────────────────────────────────────────
+    function connectSSE() {
+        const es = new EventSource(`${API}/events`);
+        es.onopen = () => document.getElementById('connection-status').textContent = 'LIVE';
+        es.onmessage = () => loadSensors();
+        es.onerror = () => document.getElementById('connection-status').textContent = 'RECONNECTING...';
+    }
+
+    // ─── RULES PAGE ─────────────────────────────────────────────────
+    function showRules(actuatorName, actuatorLabel) {
+        currentActuator = actuatorName;
+        document.getElementById('rules-actuator-title').textContent = actuatorLabel;
+        document.getElementById('dashboard-page').style.display = 'none';
+        document.getElementById('rules-page').style.display = 'block';
+        updateMetrics();
+        loadRules();
+    }
+
+    function showDashboard() {
+        document.getElementById('rules-page').style.display = 'none';
+        document.getElementById('dashboard-page').style.display = 'block';
+        currentActuator = null;
+    }
+
+    async function loadRules() {
+        try {
+            const res = await fetch(`${API}/actuators/${currentActuator}/rules`);
+            renderRules(await res.json());
+        } catch (e) { console.error('Failed to load rules:', e); }
+    }
+
+    function renderRules(rules) {
+        const tbody = document.getElementById('rules-tbody');
+        if (!rules || rules.length === 0) {
+            tbody.innerHTML = '<tr class="loading-row"><td colspan="7">NO RULES DEFINED</td></tr>';
+            return;
+        }
+        tbody.innerHTML = rules.map(rule => `
+            <tr class="${rule.enabled ? '' : 'rule-disabled'}">
+                <td class="sensor-name">${rule.sensorId}</td>
+                <td class="metric-name">${rule.metric}</td>
+                <td style="font-family:var(--font-mono)">${rule.operator}</td>
+                <td class="value">${rule.threshold}</td>
+                <td class="${rule.actuatorState === 'ON' ? 'state-on' : 'state-off'}">${rule.actuatorState}</td>
+                <td><input type="checkbox" class="rule-checkbox" ${rule.enabled ? 'checked' : ''} onchange="toggleRule(${rule.id})"></td>
+                <td><button class="btn-delete" onclick="deleteRule(${rule.id})">DELETE</button></td>
+            </tr>`).join('');
+    }
+
+    async function addRule() {
+        const rule = {
+            sensorId:      document.getElementById('rule-sensor').value,
+            metric:        document.getElementById('rule-metric').value,
+            operator:      document.getElementById('rule-operator').value,
+            threshold:     parseFloat(document.getElementById('rule-threshold').value),
+            actuatorState: document.getElementById('rule-state').value
+        };
+        if (!rule.metric || isNaN(rule.threshold)) { alert('Please fill in all fields'); return; }
+        try {
+            await fetch(`${API}/actuators/${currentActuator}/rules`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(rule)
+            });
+            document.getElementById('rule-threshold').value = '';
+            loadRules();
+        } catch (e) { console.error('Failed to add rule:', e); }
+    }
+
+    async function deleteRule(id) {
+        try {
+            await fetch(`${API}/rules/${id}`, { method: 'DELETE' });
+            loadRules();
+        } catch (e) { console.error('Failed to delete rule:', e); }
+    }
+
+    async function toggleRule(id) {
+        try {
+            await fetch(`${API}/rules/${id}/toggle`, { method: 'PUT' });
+            loadRules();
+        } catch (e) { console.error('Failed to toggle rule:', e); }
+    }
+
+    // ─── INIT ───────────────────────────────────────────────────────
+    loadSensors();
+    loadActuators();
+    connectSSE();
+    updateMetrics();
+    setInterval(loadActuators, 5000);
+</script>
+</body>
+</html>
