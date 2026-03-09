@@ -21,7 +21,8 @@ public class DataInitializer implements ApplicationRunner {
 
         ruleRepository.save(new Rule("greenhouse_temperature", "temperature_c", ">", 30.0, "cooling_fan", "ON"));
         ruleRepository.save(new Rule("greenhouse_temperature", "temperature_c", "<", 18.0, "habitat_heater", "ON"));
-        ruleRepository.save(new Rule("entrance_humidity", "humidity_pct", "<", 30.0, "entrance_humidifier", "ON"));
-        ruleRepository.save(new Rule("co2_hall", "co2_ppm", ">", 1000.0, "hall_ventilation", "ON"));
+        ruleRepository.save(new Rule("entrance_humidity", "humidity_pct", "<", 25.0, "entrance_humidifier", "ON"));
+        ruleRepository.save(new Rule("entrance_humidity", "humidity_pct", ">", 70.0, "entrance_humidifier", "OFF"));
+        ruleRepository.save(new Rule("co2_hall", "co2_ppm", ">", 1200.0, "hall_ventilation", "ON"));
     }
 }
