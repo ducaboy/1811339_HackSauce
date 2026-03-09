@@ -11,6 +11,8 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 
 RUN pip install --no-cache-dir stomp.py requests
 
+COPY . .
+
 # Run the app when the container launches
 ENTRYPOINT ["python"]
 CMD ["producer_main.py"]
