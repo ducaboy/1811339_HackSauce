@@ -28,6 +28,7 @@ while True:
     if not connection.is_connected():
         logger.info("Reconnecting...")
         connection = get_connection()
+        
     try:
         msg = requests.get(f"{SIMULATOR_URL}/api/sensors/greenhouse_temperature").json()
         norm_msg = sensor_msg_converter(msg, "scalar")

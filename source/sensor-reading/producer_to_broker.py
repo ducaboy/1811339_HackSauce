@@ -5,14 +5,6 @@ import logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger("activemq-producer")
 
-'''def __init__(self, host=BROKER_HOST, port=BROKER_PORT,
-                 user=USERNAME, password=PASSWORD, destination=DESTINATION):
-        self.conn = stomp.Connection12([(host, port)])
-        self.user = user
-        self.password = password
-        self.destination = destination
-        self.conn.set_listener('', stomp.PrintingListener())'''
-
 def connect(host: str, port: int, wait=True):
     logger.info("Connecting to broker %s:%s", host, port)
     conn = stomp.Connection12([(host, port)])
