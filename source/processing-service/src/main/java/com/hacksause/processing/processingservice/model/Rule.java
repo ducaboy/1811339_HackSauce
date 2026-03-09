@@ -18,14 +18,24 @@ public class Rule {
     private String actuatorState;
     private boolean enabled = true;
 
+    public Rule() {}
+
+    public Rule(String sensorId, String metric, String operator, double threshold, String actuatorName, String actuatorState) {
+        this.sensorId = sensorId;
+        this.metric = metric;
+        this.operator = operator;
+        this.threshold = threshold;
+        this.actuatorName = actuatorName;
+        this.actuatorState = actuatorState;
+    }
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
 
-    public String getMetric(){return metric;}
-    public void setMetric(){ this.metric = metric; }
-
     public String getSensorId() { return sensorId; }
     public void setSensorId(String sensorId) { this.sensorId = sensorId; }
+
+    public String getMetric() { return metric; }
+    public void setMetric(String metric) { this.metric = metric; }
 
     public String getOperator() { return operator; }
     public void setOperator(String operator) { this.operator = operator; }
