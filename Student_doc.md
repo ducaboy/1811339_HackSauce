@@ -75,12 +75,12 @@ The processing-service connects to an ActiveMQ broker via port 61616 through a m
 ### MICROSERVICES:
 
 #### MICROSERVICE: jms-consumer
--TYPE: backend
--DESCRIPTION: Listens to the sensor.events queue on ActiveMQ. On every incoming message it deserializes the JSON payload into a SensorEvent object, updates the in-memory sensor cache with the latest reading for that sensor, triggers the rule engine to evaluate all enabled rules against the new event, and pushes an SSE notification to all connected frontend clients.
--PORTS: None (internal only)
--TECHNOLOGICAL SPECIFICATION:
+- TYPE: backend
+- DESCRIPTION: Listens to the sensor.events queue on ActiveMQ. On every incoming message it deserializes the JSON payload into a SensorEvent object, updates the in-memory sensor cache with the latest reading for that sensor, triggers the rule engine to evaluate all enabled rules against the new event, and pushes an SSE notification to all connected frontend clients.
+- PORTS: None (internal only)
+- TECHNOLOGICAL SPECIFICATION:
 Developed in Java using Spring Boot. Uses the @JmsListener annotation to subscribe to the sensor.events queue. Uses Jackson ObjectMapper for JSON deserialization. Handles both BytesMessage and TextMessage JMS message types for broker compatibility.
--SERVICE ARCHITECTURE:
+- SERVICE ARCHITECTURE:
 The microservice utilizes the Java programming language, specifically targeting Java 25. The service is built using the Spring Boot framework, version 4.0.3.
 Key components of the stack:
 Spring Boot:
@@ -93,21 +93,21 @@ The build process is managed by Apache Maven.
 The service is realized with a single SensorConsumer class annotated with @Component. It holds references to the SensorStateCache, RuleEngine, and SseEmitterService and coordinates the full processing pipeline on each incoming message.
 
 #### MICROSERVICE: rule-engine
--TYPE: backend
--DESCRIPTION: Evaluates rules against the incoming sensor event data and triggers the actuators' state change if the conditions are met. On each evaluation it loads the rules from the PostgreSQL database by using an interface, which maps the rules table to a Java object. If a condition is met a REST Post call on the simulator is made to update the state of the actuator.
+- TYPE: backend
+- DESCRIPTION: Evaluates rules against the incoming sensor event data and triggers the actuators' state change if the conditions are met. On each evaluation it loads the rules from the PostgreSQL database by using an interface, which maps the rules table to a Java object. If a condition is met a REST Post call on the simulator is made to update the state of the actuator.
 PORTS: None (internal only)
--TECHNOLOGICAL SPECIFICATION:
+- TECHNOLOGICAL SPECIFICATION:
 The microservice utilizes the Java programming language, specifically targeting Java 25. The service is built using the Spring Boot framework, version 4.0.3.
 Uses Spring Data JPA to load rules from PostgreSQL. Uses RestTemplate to send actuator commands to the simulator REST API. Actuator states are cached in memory using a ConcurrentHashMap. The ActuatorClient initializes all 4 actuator states to OFF on startup via @PostConstruct.
 The build process is managed by Apache Maven.
--SERVICE ARCHITECTURE:
+- SERVICE ARCHITECTURE:
 The service is realized with a RuleEngine class that contains the condition evaluation logic and an ActuatorClient class that handles outbound HTTP communication with the simulator.
 
 #### MICROSERVICE: rest-api
--TYPE: backend
--DESCRIPTION: Exposes all the HTTP endpoints consumed by the frontend. Provides access to in-memory cache to always provide the latest update state of actuators and sensors. Accepts manual toggle command of the actuators and provides a POST call to the simulator's API too update the state. Handles full CRUD operations on the automation rules persited in PostgresSQL and is supported by a SSE stream that provides push notifications to the frontend whenever new information arrives.
--PORTS: 8081
--TECHNOLOGICAL SPECIFICATION:
+- TYPE: backend
+- DESCRIPTION: Exposes all the HTTP endpoints consumed by the frontend. Provides access to in-memory cache to always provide the latest update state of actuators and sensors. Accepts manual toggle command of the actuators and provides a POST call to the simulator's API too update the state. Handles full CRUD operations on the automation rules persited in PostgresSQL and is supported by a SSE stream that provides push notifications to the frontend whenever new information arrives.
+- PORTS: 8081
+- TECHNOLOGICAL SPECIFICATION:
 The microservice utilizes the Java programming language, specifically targeting Java 25. The service is built using the Spring Boot framework, version 4.0.3.
 It uses spring-boot-starter-web to use the annotations:
 @RestController to initialize a rest controller component
@@ -115,20 +115,20 @@ It uses spring-boot-starter-web to use the annotations:
 @CrossOrigin(origin = "*") to expose the REST interface to the frontend
 Still spring-boot-starter-web is used to implement a SseEmitter for the SSE stream.
 The build process is managed by Apache Maven.
--SERVICE ARCHITECTURE: 
+- SERVICE ARCHITECTURE: 
 The service is realized with an ApiController class containing all endpoint mappings and an SseEmitterService class that manages the list of active SSE connections and broadcasts events to all of them.
--ENDPOINTS:
+- ENDPOINTS:
 
   | HTTP METHOD | URL | Description | User Stories |
 	| ----------- | --- | ----------- | ------------ |
-    | GET | /api/sensors | Returns all latest sensor values from in-memory cache | 1,4 |
-    | GET | /api/actuators | Returns all actuator states with last update timestamp | 2 |
-    | POST | /api/actuators/{name}/toggle | Manually sets actuator state, forwards command to simulator | 5 |
-    | GET | /api/actuators/{name}/rules | Returns all rules for a specific actuator | 7 |
-    | POST | /api/actuators/{name}/rules | Creates a new automation rule and persists it to PostgreSQL | 6 |
-    | DELETE | /api/rules/{id} | Deletes a rule by id | 7 |
-    | PUT | /api/rules/{id}/toggle | Toggles the enabled flag of a rule | 8 |
-    | GET | /api/events | SSE stream — pushes a notification to the frontend on every new sensor event | 1,10 |
+  | GET | /api/sensors | Returns all latest sensor values from in-memory cache | 1,4 |
+  | GET | /api/actuators | Returns all actuator states with last update timestamp | 2 |
+  | POST | /api/actuators/{name}/toggle | Manually sets actuator state, forwards command to simulator | 5 |
+  | GET | /api/actuators/{name}/rules | Returns all rules for a specific actuator | 7 |
+  | POST | /api/actuators/{name}/rules | Creates a new automation rule and persists it to PostgreSQL | 6 |
+  | DELETE | /api/rules/{id} | Deletes a rule by id | 7 |
+  | PUT | /api/rules/{id}/toggle | Toggles the enabled flag of a rule | 8 |
+  | GET | /api/events | SSE stream — pushes a notification to the frontend on every new sensor event | 1,10 |
 
 ## CONTAINER_NAME: database
 
@@ -222,30 +222,30 @@ The sensor-reading service connects to an ActiveMQ broker via port 61613, acting
 ### MICROSERVICES:
 
 #### MICROSERVICE: message_converter
--TYPE: backend
--DESCRIPTION: Converts the four message formats from the sensors ("rest.scalar.v1", "rest.chemistry.v1", "rest.particulate.v1", "rest.level.v1") to a normalized format, that is the one of "rest.chemistry.v1" since it was the most generic one.
--PORTS: None (internal only)
--TECHNOLOGICAL SPECIFICATION:
+- TYPE: backend
+- DESCRIPTION: Converts the four message formats from the sensors ("rest.scalar.v1", "rest.chemistry.v1", "rest.particulate.v1", "rest.level.v1") to a normalized format, that is the one of "rest.chemistry.v1" since it was the most generic one.
+- PORTS: None (internal only)
+- TECHNOLOGICAL SPECIFICATION:
 Developed in the Python programming language using its standard libraries, in particular the "json" library, which provided the "dumps" method that serializes the argument to a JSON formatted string.
 -SERVICE ARCHITECTURE:
 The microservice is structured as a Python function that takes as inputs the dictionary representing the JSON message and the string representing the message type ("scalar", "chemistry", "particulate" or "level"), builds the normalized message by reassigning the fields and outputs it as a JSON formatted string.
 
 #### MICROSERVICE: producer_to_broker
--TYPE: backend
--DESCRIPTION: Provides the interface to initiate a connection to, send messages to and disconnect from an ActiveMQ broker
--PORTS: None (internal only)
--TECHNOLOGICAL SPECIFICATION:
+- TYPE: backend
+- DESCRIPTION: Provides the interface to initiate a connection to, send messages to and disconnect from an ActiveMQ broker
+- PORTS: None (internal only)
+- TECHNOLOGICAL SPECIFICATION:
 Developed in the Python programming language using the "stomp.py" additional library, which provided all the methods to initialize a connection, send messages to an ActiveMQ queue and disconnect from it.
--SERVICE ARCHITECTURE:
+- SERVICE ARCHITECTURE:
 The microservice is structured as three Python function: "connect", which takes the broker host address and the port in input, initializes the connection through the "stomp.Connection12" function and start the connection; "send", which takes as inputs the connection variable, the destination queue, the body of the messages and other optional headers and sends the actual message to the indicated queue using the "application/json" MIME type; "disconnect", which simply disconnect the program from the broker.
 
 #### MICROSERVICE: producer_main
--TYPE: backend
--DESCRIPTION: Coordinates the initialization of the connection with the ActiveMQ broker, the reads of all the sensors and the forwarding of the normalized messages tp the broker (carried out every 3 seconds).
--PORTS: None (internal only)
--TECHNOLOGICAL SPECIFICATION:
+- TYPE: backend
+- DESCRIPTION: Coordinates the initialization of the connection with the ActiveMQ broker, the reads of all the sensors and the forwarding of the normalized messages tp the broker (carried out every 3 seconds).
+- PORTS: None (internal only)
+- TECHNOLOGICAL SPECIFICATION:
 Developed in the Python programming language using the "requests" additional library, which provided all the methods to make HTML requests towards a given host.
--SERVICE ARCHITECTURE:
+- SERVICE ARCHITECTURE:
 The microservice initializes the global variables for the host and the port by fetching the environmental variables declared in the docker-compose file, initializes and start the connection with the ActiveMQ broker, then starts a loop in which makes a HTML GET request to read each sensor one by one every 3 seconds from the simulated environment (using the "requests.get" function) and sends the normalized message to the destination queue. In case of error, it dismisses the connection and retries in the next loop.
 
 ## CONTAINER_NAME: frontend
@@ -276,10 +276,10 @@ The frontend service connects to the Google API to fetch the fonts and styles to
 ### MICROSERVICES:
 
 #### MICROSERVICE: frontend-page
--TYPE: frontend
--DESCRIPTION: This microservice serves the main user interface for the habitat operator.
--PORTS: 80:80
--TECHNOLOGICAL SPECIFICATION: 
+- TYPE: frontend
+- DESCRIPTION: This microservice serves the main user interface for the habitat operator.
+- PORTS: 80:80
+- TECHNOLOGICAL SPECIFICATION: 
 Developed in the HTML, CSS and JavaScript languages. In particular every variable field is updated in real time by using the JavaScript function "fetch", that communicates with the processing service on the provided API endpoints.
 - PAGES:
 	| Name | Description | Related Microservice | User Stories |
