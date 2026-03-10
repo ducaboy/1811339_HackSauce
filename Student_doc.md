@@ -167,6 +167,34 @@ PostgreSQL 15. Schema managed by Hibernate (ddl-auto=update). Accessed by the pr
 - DB STRUCTURE:
 Rule : | id | sensor_id | metric | operator | threshold | actuator_name | actuator_state | enabled |
 
+## CONTAINER_NAME: activemq
+
+### DESCRIPTION:
+Message broker that routes normalized sensor events from the ingestion-service to the processing-service.
+
+### USER STORIES:
+1) As a Habitat Operator, I want to see the latest value of each sensor in real time, so that I can monitor habitat conditions
+
+### PORTS:
+61616:61616, 8161:8161
+
+### DESCRIPTION:
+ActiveMQ acts as the central message broker of the platform. The ingestion-service publishes one message per sensor per polling cycle to the sensor.events queue. The processing-service consumes messages from the same queue via a JMS listener. This decouples the two services so they can operate independently.
+
+### PERSISTENCE EVALUATION:
+ActiveMQ persists messages internally using its default KahaDB store. No additional persistence configuration is required.
+
+### EXTERNAL SERVICES CONNECTIONS:
+The activemq container does not connect to external services.
+
+### MICROSERVICES:
+
+#### MICROSERVICE: activemq
+- TYPE: middleware
+- DESCRIPTION: Routes sensor event messages from the ingestion-service to the processing-service via the sensor.events queue.
+- PORTS: 61613(stomp), 61616 (JMS), 8161 (Web Console)
+- QUEUE: sensor.events
+
 ## CONTAINER_NAME: sensor-reading
 
 ### DESCRIPTION:
