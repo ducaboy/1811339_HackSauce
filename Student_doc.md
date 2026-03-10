@@ -88,6 +88,7 @@ Several Spring Boot starter dependencies are included:
 spring-boot-starter-web: This is used for building web applications, including RESTful APIs.
 spring-boot-starter-test: This is included for unit and integration testing purposes.
 spring-boot-starter-activemq: This is to establish an ActiveMq connection.
+com-fasterxml-jackson-core: This is used to speed up the mapping of the json message to a Java object.
 The build process is managed by Apache Maven.
 The service is realized with a single SensorConsumer class annotated with @Component. It holds references to the SensorStateCache, RuleEngine, and SseEmitterService and coordinates the full processing pipeline on each incoming message.
 
