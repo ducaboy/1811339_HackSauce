@@ -212,12 +212,12 @@ The microservice is structured as three Python function: "connect", which takes 
 
 #### MICROSERVICE: producer_main
 -TYPE: backend
--DESCRIPTION: Coordinates the initialization of the connection with the ActiveMQ broker, the reads of all the sensors and the forwarding of the normalized messages tp the broker (carried out every 5 seconds).
+-DESCRIPTION: Coordinates the initialization of the connection with the ActiveMQ broker, the reads of all the sensors and the forwarding of the normalized messages tp the broker (carried out every 3 seconds).
 -PORTS: None (internal only)
 -TECHNOLOGICAL SPECIFICATION:
 Developed in the Python programming language using the "requests" additional library, which provided all the methods to make HTML requests towards a given host.
 -SERVICE ARCHITECTURE:
-The microservice initializes the global variables for the host and the port by fetching the environmental variables declared in the docker-compose file, initializes and start the connection with the ActiveMQ broker, then starts a loop in which makes a HTML GET request to read each sensor one by one every 5 seconds from the simulated environment (using the "requests.get" function) and sends the normalized message to the destination queue. In case of error, it dismisses the connection and retries in the next loop.
+The microservice initializes the global variables for the host and the port by fetching the environmental variables declared in the docker-compose file, initializes and start the connection with the ActiveMQ broker, then starts a loop in which makes a HTML GET request to read each sensor one by one every 3 seconds from the simulated environment (using the "requests.get" function) and sends the normalized message to the destination queue. In case of error, it dismisses the connection and retries in the next loop.
 
 ## CONTAINER_NAME: frontend
 
@@ -251,10 +251,10 @@ The frontend service connects to the Google API to fetch the fonts and styles to
 -DESCRIPTION: This microservice serves the main user interface for the habitat operator.
 -PORTS: 80:80
 -TECHNOLOGICAL SPECIFICATION: 
-Developed in the HTML, CSS and JavaScript languages. In particular every variable field is updated in real time by using the JavaScript function "fetch", that communicates with the processing service on the provided API.
+Developed in the HTML, CSS and JavaScript languages. In particular every variable field is updated in real time by using the JavaScript function "fetch", that communicates with the processing service on the provided API endpoints.
 - PAGES:
 	| Name | Description | Related Microservice | User Stories |
 	| ---- | ----------- | -------------------- | ------------ |
 	| Home | Displays the sensors' values and actuators' status | message_converter, jms-consumer, rest-api, message_converter,  
                                                                 producer_to_broker, producer_main | 1, 2, 4, 5, 10 |
-  | Rules | Displays the actuators rules and an interface to add them | rule-engine, postgres | 6, 7, 8 |
+  | Rules | Displays the rules of the selected actuator and an interface to add them | rule-engine, postgres | 6, 7, 8 |

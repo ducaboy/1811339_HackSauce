@@ -12,7 +12,7 @@ SIMULATOR_URL = os.environ.get('SIMULATOR_URL', 'http://localhost:8080')
 #USERNAME = "admin"
 #PASSWORD = "admin"
 DESTINATION = "sensor.events"      #DA CAMBIARE DURANTE TESTING
-SEND_TIMER = 5.0
+SEND_TIMER = 3.0
 
 def get_connection():
     while True:
