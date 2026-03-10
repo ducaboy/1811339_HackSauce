@@ -18,27 +18,27 @@ The habitat operator will be able to see the latest values of all sensors in rea
 
 # STANDARD INTERNAL EVENT FORMAT 
 
-{
-  "type": "object",
-  "required": ["sensor_id", "captured_at", "measurements", "status"],
-  "properties": {
-    "sensor_id": { "type": "string" },
-    "captured_at": { "type": "string", "format": "date-time" },
-    "measurements": {
-      "type": "array",
-      "items": {
-        "type": "object",
-        "required": ["metric", "value", "unit"],
-        "properties": {
-          "metric": { "type": "string" },
-          "value": { "type": "number" },
-          "unit": { "type": "string" }
-        }
-      }
-    },
-    "status": { "type": "string", "enum": ["ok", "warning"] }
-  }
-}
+{<br>
+  "type": "object",<br>
+  "required": ["sensor_id", "captured_at", "measurements", "status"],<br>
+  "properties": {<br>
+    "sensor_id": { "type": "string" },<br>
+    "captured_at": { "type": "string", "format": "date-time" },<br>
+    "measurements": {<br>
+      "type": "array",<br>
+      "items": {<br>
+        "type": "object",<br>
+        "required": ["metric", "value", "unit"],<br>
+        "properties": {<br>
+          "metric": { "type": "string" },<br>
+          "value": { "type": "number" },<br>
+          "unit": { "type": "string" }<br>
+        }<br>
+      }<br>
+    },<br>
+    "status": { "type": "string", "enum": ["ok", "warning"] }<br>
+  }<br>
+}<br>
 
 # RULE MODEL
 
