@@ -32,7 +32,7 @@ services:
 
   database:
     image: postgres:15
-    container_name: hacksause-db
+    container_name: hacksauce-db
     environment:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
