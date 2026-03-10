@@ -18,27 +18,27 @@ The system ingests sensor data in real time, applies automation rules, and allow
 
 # STANDARD INTERNAL EVENT FORMAT 
 
-{
-  "type": "object",
-  "required": ["sensor_id", "captured_at", "measurements", "status"],
-  "properties": {
-    "sensor_id": { "type": "string" },
-    "captured_at": { "type": "string", "format": "date-time" },
-    "measurements": {
-      "type": "array",
-      "items": {
-        "type": "object",
-        "required": ["metric", "value", "unit"],
-        "properties": {
-          "metric": { "type": "string" },
-          "value": { "type": "number" },
-          "unit": { "type": "string" }
-        }
-      }
-    },
-    "status": { "type": "string", "enum": ["ok", "warning"] }
-  }
-}
+{<br>
+  "type": "object",<br>
+  "required": ["sensor_id", "captured_at", "measurements", "status"],<br>
+  "properties": {<br>
+    "sensor_id": { "type": "string" },<br>
+    "captured_at": { "type": "string", "format": "date-time" },<br>
+    "measurements": {<br>
+      "type": "array",<br>
+      "items": {<br>
+        "type": "object",<br>
+        "required": ["metric", "value", "unit"],<br>
+        "properties": {<br>
+          "metric": { "type": "string" },<br>
+          "value": { "type": "number" },<br>
+          "unit": { "type": "string" }<br>
+        }<br>
+      }<br>
+    },<br>
+    "status": { "type": "string", "enum": ["ok", "warning"] }<br>
+  }<br>
+}<br>
 
 # CONTAINERS:
 
@@ -284,6 +284,5 @@ Developed in the HTML, CSS and JavaScript languages. In particular every variabl
 - PAGES:
 	| Name | Description | Related Microservice | User Stories |
 	| ---- | ----------- | -------------------- | ------------ |
-	| Home | Displays the sensors' values and actuators' status | message_converter, jms-consumer, rest-api, message_converter,  
-                                                                producer_to_broker, producer_main | 1, 2, 4, 5, 10 |
+	| Home | Displays the sensors' values and actuators' status | message_converter, jms-consumer, rest-api, message_converter, producer_to_broker, producer_main | 1, 2, 4, 5, 10 |
   | Rules | Displays the rules of the selected actuator and an interface to add them | rule-engine, postgres | 6, 7, 8 |
